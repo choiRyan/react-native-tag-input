@@ -206,9 +206,18 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     }
   }
 
+  onSubmitEditing = (event) => {
+    if (this.props.text) this.props.onChangeText(this.props.text + '\n');
+    else this.tagInput.blur();
+  }
+
   onBlur = (event: { nativeEvent: { text: string } }) => {
-    invariant(Platform.OS === "ios", "only iOS gets text on TextInput.onBlur");
-    this.props.onChangeText(event.nativeEvent.text);
+    // only iOS gets text on TextInput.onBlur
+    if (Platform.OS === 'ios') {
+      if (event.nativeEvent.text) this.props.onChangeText(event.nativeEvent.text + '\n');
+    } else if (Platform.OS === 'android') {
+      if (this.props.text) this.props.onChangeText(this.props.text + '\n')
+    }
   }
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
@@ -292,12 +301,12 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
                     width: this.state.inputWidth,
                     color: this.props.inputColor,
                   }]}
-                  onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
+                  onBlur={this.onBlur}
                   onChangeText={this.props.onChangeText}
                   autoCapitalize="none"
                   autoCorrect={false}
+                  onSubmitEditing={this.onSubmitEditing}
                   placeholder="Start typing"
-                  returnKeyType="done"
                   keyboardType="default"
                   editable={this.props.editable}
                   underlineColorAndroid="rgba(0,0,0,0)"
